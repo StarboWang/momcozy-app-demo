@@ -26,8 +26,8 @@ const initialDevices: Device[] = [
     kind: "monitor",
     tone: "purple",
     battery: "60%",
-    image: "/figma/baby-monitor-crop.png",
-    product: "/figma/baby-monitor-product.png",
+    image: "figma/baby-monitor-crop.png",
+    product: "figma/baby-monitor-product.png",
   },
   {
     id: "cleaning-live",
@@ -35,18 +35,18 @@ const initialDevices: Device[] = [
     kind: "row",
     tone: "green",
     status: "Playing",
-    image: "/figma/cleaner.png",
+    image: "figma/cleaner.png",
     playing: true,
   },
-  { id: "toner", title: "Muscle Toner", kind: "row", tone: "rose", battery: "80%", image: "/figma/muscle-toner.png" },
-  { id: "fd04", title: "FD04", kind: "row", tone: "yellow", image: "/figma/bottle-warmer.png" },
+  { id: "toner", title: "Muscle Toner", kind: "row", tone: "rose", battery: "80%", image: "figma/muscle-toner.png" },
+  { id: "fd04", title: "FD04", kind: "row", tone: "yellow", image: "figma/bottle-warmer.png" },
   {
     id: "cleaning-offline",
     title: "Cleaning Machine",
     kind: "row",
     tone: "offline",
     status: "Offline",
-    image: "/figma/cleaner.png",
+    image: "figma/cleaner.png",
     offline: true,
   },
   {
@@ -55,7 +55,7 @@ const initialDevices: Device[] = [
     kind: "row",
     tone: "offline",
     status: "Offline",
-    image: "/figma/air-purifier.png",
+    image: "figma/air-purifier.png",
     offline: true,
   },
 ];
@@ -88,7 +88,7 @@ function App() {
 
   if (route === "bbm") {
     return (
-      <BbmDetailPage
+      <BbmPixelPage
         cameraControlOpen={cameraControlOpen}
         fullScreenLive={fullScreenLive}
         livePlaying={bbmLivePlaying}
@@ -112,6 +112,7 @@ function App() {
         onToggleLive={() => setBbmLivePlaying((value) => !value)}
         onToggleMusic={() => setMusicPlaying((value) => !value)}
         onToast={showToast}
+        toast={toast}
       />
     );
   }
@@ -121,47 +122,159 @@ function App() {
   }
 
   return (
-    <main className="app-shell" aria-label="Momcozy device demo">
-      <div className="ambient-top" />
-      <img className="ambient-line" src="/figma/bg-line.png" alt="" />
-      <StatusBar time="9:41" />
+    <PixelDevicePage
+      devices={devices}
+      activeTab={activeTab}
+      bbmInlinePlaying={bbmInlinePlaying}
+      selectedDevice={selectedDevice}
+      toast={toast}
+      onAdd={() => showToast("Ready to add a device")}
+      onEnterBbm={() => setRoute("bbm")}
+      onOpenDevice={setSelectedDevice}
+      onSelectTab={(tab) => {
+        setActiveTab(tab);
+        showToast(tab);
+      }}
+      onToggleBbmInline={() => setBbmInlinePlaying((value) => !value)}
+      onToggleDevice={toggleDevicePlay}
+      onCloseSheet={() => setSelectedDevice(null)}
+    />
+  );
+}
 
-      <header className="top-nav">
-        <h1>Clara&apos;s Family</h1>
-        <button className="add-button" aria-label="Add device" onClick={() => showToast("Ready to add a device")}>
-          <PlusIcon />
-        </button>
-      </header>
+function PixelDevicePage({
+  activeTab,
+  bbmInlinePlaying,
+  devices,
+  selectedDevice,
+  toast,
+  onAdd,
+  onCloseSheet,
+  onEnterBbm,
+  onOpenDevice,
+  onSelectTab,
+  onToggleBbmInline,
+  onToggleDevice,
+}: {
+  activeTab: string;
+  bbmInlinePlaying: boolean;
+  devices: Device[];
+  selectedDevice: Device | null;
+  toast: string;
+  onAdd: () => void;
+  onCloseSheet: () => void;
+  onEnterBbm: () => void;
+  onOpenDevice: (device: Device) => void;
+  onSelectTab: (tab: string) => void;
+  onToggleBbmInline: () => void;
+  onToggleDevice: (id: string) => void;
+}) {
+  const pumpDevice = devices.find((device) => device.id === "pump");
+  const restDevices = devices.slice(2);
 
-      <section className="device-list" aria-label="Devices">
-        {devices.map((device) => {
-          if (device.kind === "pump") {
-            return <PumpCard key={device.id} device={device} onOpen={setSelectedDevice} onToggle={toggleDevicePlay} />;
-          }
-          if (device.kind === "monitor") {
-            return (
-              <MonitorCard
-                key={device.id}
-                device={device}
-                inlinePlaying={bbmInlinePlaying}
-                onEnter={() => setRoute("bbm")}
-                onToggleInline={() => setBbmInlinePlaying((value) => !value)}
-              />
-            );
-          }
-          return <DeviceRow key={device.id} device={device} onOpen={setSelectedDevice} onToggle={toggleDevicePlay} />;
-        })}
+  return (
+    <main className="app-shell pixel-shell" aria-label="Momcozy device demo">
+      <section className="pixel-reference device-reference" aria-label="Devices">
+        <img src="figma/reference-device-page.png" alt="" />
+        <button className="hotspot add-hotspot" aria-label="Add device" onClick={onAdd} />
+        {pumpDevice ? <button className="hotspot pump-card-hotspot" aria-label="Open Breast Pump" onClick={() => onOpenDevice(pumpDevice)} /> : null}
+        <button className="hotspot pump-play-hotspot" aria-label="Pause Breast Pump" onClick={() => onToggleDevice("pump")} />
+        <button className="hotspot monitor-open-hotspot" aria-label="Open baby monitor" onClick={onEnterBbm} />
+        <button className="hotspot monitor-feed-hotspot" aria-label="Play monitor preview" onClick={onToggleBbmInline} />
+        <span className={`pixel-feed-state ${bbmInlinePlaying ? "show" : ""}`}>
+          <PauseIcon />
+        </span>
+        <button className="hotspot tab-home-hotspot" aria-label="Home tab" onClick={() => onSelectTab("Home")} />
+        <button className="hotspot tab-device-hotspot" aria-label="Device tab" onClick={() => onSelectTab("Device")} />
+        <button className="hotspot tab-community-hotspot" aria-label="Community tab" onClick={() => onSelectTab("Community")} />
+        <button className="hotspot tab-me-hotspot" aria-label="Me tab" onClick={() => onSelectTab("Me")} />
       </section>
 
-      <TabBar
-        activeTab={activeTab}
-        onSelect={(tab) => {
-          setActiveTab(tab);
-          showToast(tab);
-        }}
-      />
+      <section className="device-continuation" aria-label="More devices">
+        {restDevices.map((device) => (
+          <DeviceRow key={device.id} device={device} onOpen={onOpenDevice} onToggle={onToggleDevice} />
+        ))}
+      </section>
 
-      {selectedDevice ? <DeviceSheet device={selectedDevice} onClose={() => setSelectedDevice(null)} onToggle={toggleDevicePlay} /> : null}
+      {activeTab !== "Device" ? <div className="toast tab-toast">{activeTab}</div> : null}
+      {selectedDevice ? <DeviceSheet device={selectedDevice} onClose={onCloseSheet} onToggle={onToggleDevice} /> : null}
+      {toast ? <div className="toast">{toast}</div> : null}
+    </main>
+  );
+}
+
+function BbmPixelPage({
+  cameraControlOpen,
+  fullScreenLive,
+  livePlaying,
+  musicPlaying,
+  panel,
+  recording,
+  talking,
+  toast,
+  onBack,
+  onCameraControl,
+  onCloseFullScreen,
+  onFeature,
+  onOpenFullScreen,
+  onOpenPanel,
+  onSettings,
+  onToggleLive,
+  onToggleMusic,
+  onToast,
+}: {
+  cameraControlOpen: boolean;
+  fullScreenLive: boolean;
+  livePlaying: boolean;
+  musicPlaying: boolean;
+  panel: DetailPanel;
+  recording: boolean;
+  talking: boolean;
+  toast: string;
+  onBack: () => void;
+  onCameraControl: () => void;
+  onCloseFullScreen: () => void;
+  onFeature: (feature: string) => void;
+  onOpenFullScreen: () => void;
+  onOpenPanel: (panel: DetailPanel) => void;
+  onSettings: () => void;
+  onToggleLive: () => void;
+  onToggleMusic: () => void;
+  onToast: (message: string) => void;
+}) {
+  return (
+    <main className="app-shell pixel-shell bbm-pixel-shell" aria-label="Baby Monitor">
+      <section className="pixel-reference bbm-reference" aria-label="Baby Monitor details">
+        <img src="figma/bbm-detail-reference.png" alt="" />
+        <button className="hotspot bbm-back-hotspot" aria-label="Back to devices" onClick={onBack} />
+        <button className="hotspot bbm-settings-hotspot" aria-label="Open baby monitor settings" onClick={onSettings} />
+        <button className="hotspot bbm-live-hotspot" aria-label="Open full screen live view" onClick={onOpenFullScreen} />
+        <button className="hotspot bbm-screenshot-hotspot" aria-label="Screenshot" onClick={() => onFeature("Screenshot")} />
+        <button className="hotspot bbm-record-hotspot" aria-label="Record" onClick={() => onFeature("Record")} />
+        <button className="hotspot bbm-talk-hotspot" aria-label="Talk" onClick={() => onFeature("Talk")} />
+        <button className="hotspot bbm-control-hotspot" aria-label="Camera control" onClick={onCameraControl} />
+        <button className="hotspot bbm-music-hotspot" aria-label="Music" onClick={() => onFeature("Music")} />
+        <button className="hotspot bbm-smart-hotspot" aria-label="Smart Care" onClick={() => onToast("Smart Care preview")} />
+        <button className="hotspot event-prone-hotspot" aria-label="Prone Sleeping preview" onClick={() => onToast("Prone Sleeping preview")} />
+        <button className="hotspot event-crying-hotspot" aria-label="Crying preview" onClick={() => onToast("Crying preview")} />
+        <button className="hotspot event-face-hotspot" aria-label="Face Covered preview" onClick={() => onToast("Face Covered preview")} />
+        <button className="hotspot playback-hotspot" aria-label="Open playback" onClick={() => onOpenPanel(panel === "playback" ? "none" : "playback")} />
+        <button className="hotspot album-hotspot" aria-label="Open album" onClick={() => onOpenPanel(panel === "album" ? "none" : "album")} />
+        <div className="bbm-pixel-states" aria-hidden="true">
+          {recording ? <span className="state-pill record">Recording</span> : null}
+          {talking ? <span className="state-pill talk">Talking</span> : null}
+          {!livePlaying ? (
+            <span className="pixel-live-paused">
+              <PlayIcon />
+            </span>
+          ) : null}
+        </div>
+      </section>
+
+      {cameraControlOpen ? <CameraControlPad onToast={onToast} /> : null}
+      {panel !== "none" ? <BbmPanel panel={panel} onClose={() => onOpenPanel("none")} /> : null}
+      {musicPlaying ? <MusicBar onToggle={onToggleMusic} /> : null}
+      {fullScreenLive ? <FullScreenLive livePlaying={livePlaying} onClose={onCloseFullScreen} onToggle={onToggleLive} /> : null}
       {toast ? <div className="toast">{toast}</div> : null}
     </main>
   );
@@ -239,7 +352,7 @@ function MonitorCard({
         <ChevronIcon />
       </button>
       <button className="monitor-feed" aria-label={inlinePlaying ? "Pause monitor preview" : "Play monitor preview"} onClick={onToggleInline}>
-        <img src={inlinePlaying ? "/figma/bbm-live.png" : device.image} alt="Baby monitor feed" />
+        <img src={inlinePlaying ? "figma/bbm-live.png" : device.image} alt="Baby monitor feed" />
         <span>{inlinePlaying ? "m  •  2026-05-13 10:56:39" : "2025-01-08 11:50:55"}</span>
         <span className="inline-play-overlay">{inlinePlaying ? <PauseIcon /> : <PlayIcon />}</span>
       </button>
@@ -335,7 +448,7 @@ function BbmDetailPage({
 
       <section className="bbm-live" aria-label="Live monitor">
         <button className="bbm-live-media" onClick={onOpenFullScreen}>
-          <img src="/figma/bbm-live.png" alt="Baby monitor live view" />
+          <img src="figma/bbm-live.png" alt="Baby monitor live view" />
           <span className="live-watermark">m <i /> 2026-05-13 10:56:39</span>
         </button>
         <button className="live-floating-control" aria-label={livePlaying ? "Pause live video" : "Play live video"} onClick={onToggleLive}>
@@ -391,9 +504,9 @@ function BbmDetailPage({
 
 function CareLog({ onPreview }: { onPreview: (label: string) => void }) {
   const events = [
-    { label: "Prone Sleeping", time: "17:00", image: "/figma/bbm-event-prone.png" },
-    { label: "Crying", time: "17:00", image: "/figma/bbm-event-crying.png" },
-    { label: "Face Covered", time: "17:00", image: "/figma/bbm-event-face.png" },
+    { label: "Prone Sleeping", time: "17:00", image: "figma/bbm-event-prone.png" },
+    { label: "Crying", time: "17:00", image: "figma/bbm-event-crying.png" },
+    { label: "Face Covered", time: "17:00", image: "figma/bbm-event-face.png" },
   ];
 
   return (
@@ -449,9 +562,9 @@ function BbmPanel({ panel, onClose }: { panel: Exclude<DetailPanel, "none">; onC
         <button onClick={onClose}>Done</button>
       </div>
       <div className="panel-grid">
-        <img src="/figma/bbm-event-prone.png" alt="" />
-        <img src="/figma/bbm-event-crying.png" alt="" />
-        <img src="/figma/bbm-event-face.png" alt="" />
+        <img src="figma/bbm-event-prone.png" alt="" />
+        <img src="figma/bbm-event-crying.png" alt="" />
+        <img src="figma/bbm-event-face.png" alt="" />
       </div>
     </section>
   );
@@ -474,7 +587,7 @@ function MusicBar({ onToggle }: { onToggle: () => void }) {
 function FullScreenLive({ livePlaying, onClose, onToggle }: { livePlaying: boolean; onClose: () => void; onToggle: () => void }) {
   return (
     <section className="live-fullscreen" aria-label="Full screen live view">
-      <img src="/figma/bbm-live.png" alt="Full screen baby monitor" />
+      <img src="figma/bbm-live.png" alt="Full screen baby monitor" />
       <button className="fullscreen-close" onClick={onClose}>
         Close
       </button>
@@ -501,7 +614,7 @@ function BbmSettingsPage({ onBack, onToast, toast }: { onBack: () => void; onToa
         <span />
       </header>
       <section className="settings-hero">
-        <img src="/figma/baby-monitor-product.png" alt="" />
+        <img src="figma/baby-monitor-product.png" alt="" />
         <div>
           <h2>Clara&apos;s Baby Monitor 01</h2>
           <p>Online · 60% battery</p>

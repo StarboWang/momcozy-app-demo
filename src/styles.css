@@ -38,6 +38,321 @@ button {
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.04);
 }
 
+.pixel-shell {
+  min-height: 100svh;
+  background: #fff;
+}
+
+.pixel-reference {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  background: #fff;
+}
+
+.pixel-reference > img {
+  display: block;
+  width: 100%;
+  height: auto;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.hotspot {
+  position: absolute;
+  z-index: 3;
+  display: block;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 16px;
+  cursor: pointer;
+}
+
+.hotspot:active {
+  background: rgba(85, 44, 149, 0.08);
+}
+
+.device-reference {
+  height: 852px;
+}
+
+.add-hotspot {
+  top: 76px;
+  right: 16px;
+  width: 64px;
+  height: 64px;
+  border-radius: 999px;
+}
+
+.pump-card-hotspot {
+  top: 148px;
+  left: 16px;
+  width: 361px;
+  height: 279px;
+  border-radius: 24px;
+}
+
+.pump-play-hotspot {
+  top: 166px;
+  left: 321px;
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+}
+
+.monitor-open-hotspot {
+  top: 443px;
+  left: 16px;
+  width: 361px;
+  height: 78px;
+  border-radius: 24px 24px 10px 10px;
+}
+
+.monitor-feed-hotspot {
+  top: 521px;
+  left: 32px;
+  width: 329px;
+  height: 185px;
+  border-radius: 12px;
+}
+
+.pixel-feed-state {
+  position: absolute;
+  top: 591px;
+  left: 169px;
+  z-index: 2;
+  display: grid;
+  width: 54px;
+  height: 54px;
+  place-items: center;
+  color: #fff;
+  pointer-events: none;
+  opacity: 0;
+  transform: scale(0.92);
+  transition:
+    opacity 160ms ease,
+    transform 160ms ease;
+}
+
+.pixel-feed-state.show {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.pixel-feed-state svg {
+  width: 54px;
+  height: 54px;
+  padding: 15px;
+  fill: currentColor;
+  background: rgba(16, 0, 40, 0.48);
+  border-radius: 999px;
+  backdrop-filter: blur(8px);
+}
+
+.tab-home-hotspot,
+.tab-device-hotspot,
+.tab-community-hotspot,
+.tab-me-hotspot {
+  top: 773px;
+  height: 54px;
+  border-radius: 999px;
+}
+
+.tab-home-hotspot {
+  left: 40px;
+  width: 72px;
+}
+
+.tab-device-hotspot {
+  left: 112px;
+  width: 90px;
+}
+
+.tab-community-hotspot {
+  left: 202px;
+  width: 86px;
+}
+
+.tab-me-hotspot {
+  left: 288px;
+  width: 64px;
+}
+
+.device-continuation {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px 16px 118px;
+  background:
+    linear-gradient(180deg, rgba(249, 247, 245, 0.76), #f9f7f5 36%),
+    #f9f7f5;
+}
+
+.tab-toast {
+  bottom: 164px;
+}
+
+.bbm-pixel-shell {
+  width: min(100vw, 402px);
+  background: #fff;
+}
+
+.bbm-reference {
+  height: 874px;
+  border-radius: 0 0 28px 28px;
+}
+
+.bbm-back-hotspot {
+  top: 72px;
+  left: 12px;
+  width: 48px;
+  height: 48px;
+  border-radius: 999px;
+}
+
+.bbm-settings-hotspot {
+  top: 72px;
+  right: 12px;
+  width: 48px;
+  height: 48px;
+  border-radius: 999px;
+}
+
+.bbm-live-hotspot {
+  top: 126px;
+  left: 0;
+  width: 402px;
+  height: 217px;
+  border-radius: 0;
+}
+
+.bbm-screenshot-hotspot,
+.bbm-record-hotspot,
+.bbm-talk-hotspot,
+.bbm-control-hotspot,
+.bbm-music-hotspot {
+  top: 359px;
+  width: 64px;
+  height: 64px;
+  border-radius: 999px;
+}
+
+.bbm-screenshot-hotspot {
+  left: 17px;
+}
+
+.bbm-record-hotspot {
+  left: 97px;
+}
+
+.bbm-talk-hotspot {
+  left: 177px;
+}
+
+.bbm-control-hotspot {
+  left: 257px;
+}
+
+.bbm-music-hotspot {
+  left: 337px;
+}
+
+.bbm-smart-hotspot {
+  top: 459px;
+  right: 31px;
+  width: 120px;
+  height: 42px;
+  border-radius: 999px;
+}
+
+.event-prone-hotspot,
+.event-crying-hotspot,
+.event-face-hotspot {
+  top: 542px;
+  height: 162px;
+  border-radius: 10px;
+}
+
+.event-prone-hotspot {
+  left: 32px;
+  width: 140px;
+}
+
+.event-crying-hotspot {
+  left: 184px;
+  width: 140px;
+}
+
+.event-face-hotspot {
+  left: 336px;
+  width: 72px;
+}
+
+.playback-hotspot,
+.album-hotspot {
+  top: 725px;
+  width: 181px;
+  height: 104px;
+  border-radius: 16px;
+}
+
+.playback-hotspot {
+  left: 16px;
+}
+
+.album-hotspot {
+  left: 205px;
+}
+
+.bbm-pixel-states {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.state-pill {
+  position: absolute;
+  top: 343px;
+  padding: 6px 10px;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 650;
+  background: rgba(85, 44, 149, 0.9);
+  border-radius: 999px;
+  box-shadow: 0 8px 20px rgba(85, 44, 149, 0.2);
+}
+
+.state-pill.record {
+  left: 99px;
+}
+
+.state-pill.talk {
+  left: 187px;
+}
+
+.pixel-live-paused {
+  position: absolute;
+  top: 220px;
+  left: 177px;
+  display: grid;
+  width: 56px;
+  height: 56px;
+  place-items: center;
+  color: #fff;
+}
+
+.pixel-live-paused svg {
+  width: 56px;
+  height: 56px;
+  padding: 16px;
+  fill: currentColor;
+  background: rgba(16, 0, 40, 0.44);
+  border-radius: 999px;
+  backdrop-filter: blur(8px);
+}
+
 .ambient-top {
   position: fixed;
   top: 0;
@@ -983,6 +1298,20 @@ button {
   border-radius: 20px;
 }
 
+.bbm-pixel-shell .camera-pad {
+  position: fixed;
+  right: 24px;
+  bottom: max(86px, calc(env(safe-area-inset-bottom) + 86px));
+  left: 24px;
+  z-index: 18;
+  max-width: 354px;
+  margin: 0 auto;
+  background: rgba(255, 255, 255, 0.94);
+  border-color: rgba(85, 44, 149, 0.2);
+  box-shadow: 0 18px 44px rgba(85, 44, 149, 0.18);
+  backdrop-filter: blur(18px);
+}
+
 .camera-pad div {
   display: flex;
   justify-content: center;
@@ -1179,6 +1508,19 @@ button {
   border: 1px solid rgba(200, 189, 255, 0.24);
   border-radius: 18px;
   box-shadow: 0 14px 34px rgba(85, 44, 149, 0.12);
+}
+
+.bbm-pixel-shell .bbm-panel {
+  position: fixed;
+  right: 16px;
+  bottom: max(18px, env(safe-area-inset-bottom));
+  left: 16px;
+  z-index: 17;
+  max-width: 370px;
+  margin: 0 auto;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 18px 48px rgba(85, 44, 149, 0.18);
+  backdrop-filter: blur(16px);
 }
 
 .panel-head {
