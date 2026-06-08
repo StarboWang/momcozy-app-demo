@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import "./styles.css";
 
-type Route = "devices" | "bbm" | "bbm-settings";
+type Route = "devices" | "pump" | "bbm" | "bbm-settings";
 type DetailPanel = "none" | "playback" | "album";
 
 type Device = {
@@ -121,6 +121,10 @@ function App() {
     return <BbmSettingsPage onBack={() => setRoute("bbm")} onToast={showToast} toast={toast} />;
   }
 
+  if (route === "pump") {
+    return <PumpFlowPage onBack={() => setRoute("devices")} onDone={() => setRoute("devices")} />;
+  }
+
   return (
     <PixelDevicePage
       devices={devices}
@@ -130,6 +134,7 @@ function App() {
       toast={toast}
       onAdd={() => showToast("Ready to add a device")}
       onEnterBbm={() => setRoute("bbm")}
+      onStartPump={() => setRoute("pump")}
       onOpenDevice={setSelectedDevice}
       onSelectTab={(tab) => {
         setActiveTab(tab);
@@ -151,6 +156,7 @@ function PixelDevicePage({
   onAdd,
   onCloseSheet,
   onEnterBbm,
+  onStartPump,
   onOpenDevice,
   onSelectTab,
   onToggleBbmInline,
@@ -164,12 +170,12 @@ function PixelDevicePage({
   onAdd: () => void;
   onCloseSheet: () => void;
   onEnterBbm: () => void;
+  onStartPump: () => void;
   onOpenDevice: (device: Device) => void;
   onSelectTab: (tab: string) => void;
   onToggleBbmInline: () => void;
   onToggleDevice: (id: string) => void;
 }) {
-  const pumpDevice = devices.find((device) => device.id === "pump");
   const restDevices = devices.slice(2);
 
   return (
@@ -177,17 +183,13 @@ function PixelDevicePage({
       <section className="pixel-reference device-reference" aria-label="Devices">
         <img src="figma/reference-device-page.png" alt="" />
         <button className="hotspot add-hotspot" aria-label="Add device" onClick={onAdd} />
-        {pumpDevice ? <button className="hotspot pump-card-hotspot" aria-label="Open Breast Pump" onClick={() => onOpenDevice(pumpDevice)} /> : null}
-        <button className="hotspot pump-play-hotspot" aria-label="Pause Breast Pump" onClick={() => onToggleDevice("pump")} />
+        <button className="hotspot pump-card-hotspot" aria-label="Start Breast Pump" onClick={onStartPump} />
+        <button className="hotspot pump-play-hotspot" aria-label="Start Breast Pump timer" onClick={onStartPump} />
         <button className="hotspot monitor-open-hotspot" aria-label="Open baby monitor" onClick={onEnterBbm} />
         <button className="hotspot monitor-feed-hotspot" aria-label="Play monitor preview" onClick={onToggleBbmInline} />
         <span className={`pixel-feed-state ${bbmInlinePlaying ? "show" : ""}`}>
           <PauseIcon />
         </span>
-        <button className="hotspot tab-home-hotspot" aria-label="Home tab" onClick={() => onSelectTab("Home")} />
-        <button className="hotspot tab-device-hotspot" aria-label="Device tab" onClick={() => onSelectTab("Device")} />
-        <button className="hotspot tab-community-hotspot" aria-label="Community tab" onClick={() => onSelectTab("Community")} />
-        <button className="hotspot tab-me-hotspot" aria-label="Me tab" onClick={() => onSelectTab("Me")} />
       </section>
 
       <section className="device-continuation" aria-label="More devices">
@@ -196,10 +198,126 @@ function PixelDevicePage({
         ))}
       </section>
 
+      <TabBar activeTab={activeTab} onSelect={onSelectTab} />
       {activeTab !== "Device" ? <div className="toast tab-toast">{activeTab}</div> : null}
       {selectedDevice ? <DeviceSheet device={selectedDevice} onClose={onCloseSheet} onToggle={onToggleDevice} /> : null}
       {toast ? <div className="toast">{toast}</div> : null}
     </main>
+  );
+}
+
+function PumpFlowPage({ onBack, onDone }: { onBack: () => void; onDone: () => void }) {
+  const [elapsed, setElapsed] = useState(0);
+
+  useEffect(() => {
+    setElapsed(0);
+    const timer = window.setInterval(() => {
+      setElapsed((value) => {
+        if (value >= 10) {
+          window.clearInterval(timer);
+          return 10;
+        }
+        return value + 1;
+      });
+    }, 1000);
+
+    return () => window.clearInterval(timer);
+  }, []);
+
+  const complete = elapsed >= 10;
+
+  return (
+    <main className="app-shell pump-flow-shell" aria-label="Breast Pump flow">
+      <div className="pump-flow-bg" />
+      <StatusBar time="9:41" />
+      <header className="pump-flow-topbar">
+        <button className="icon-only pump-back" aria-label="Back to devices" onClick={onBack}>
+          <ArrowLeftIcon />
+        </button>
+        <h1>Breast Pump</h1>
+        <span />
+      </header>
+
+      <section className={`pump-flow-card ${complete ? "is-complete" : ""}`} aria-live="polite">
+        <PumpCardHeader />
+        {complete ? <PumpMilkData onDone={onDone} /> : <PumpRunning elapsed={elapsed} onFinish={() => setElapsed(10)} />}
+      </section>
+      <HomeIndicator />
+    </main>
+  );
+}
+
+function PumpCardHeader() {
+  return (
+    <div className="pump-flow-head">
+      <span className="pump-flow-icon">
+        <PumpGlyph />
+      </span>
+      <div>
+        <h2>Breast Pump</h2>
+        <span>3 Devices</span>
+      </div>
+    </div>
+  );
+}
+
+function PumpRunning({ elapsed, onFinish }: { elapsed: number; onFinish: () => void }) {
+  const progress = elapsed / 10;
+  const mm = String(Math.floor(elapsed / 60)).padStart(2, "0");
+  const ss = String(elapsed % 60).padStart(2, "0");
+
+  return (
+    <div className="pump-running">
+      <div className="pump-progress-ring" style={{ "--progress": `${progress * 360}deg` } as React.CSSProperties}>
+        <div>
+          <strong>
+            {mm}:{ss}
+          </strong>
+          <span>Rhythm Mode</span>
+        </div>
+      </div>
+      <div className="pump-running-meta">
+        <span>M9 Pro</span>
+        <span>
+          R <BatteryTiny />
+        </span>
+      </div>
+      <button className="pump-finish-button" onClick={onFinish}>
+        Finish
+      </button>
+    </div>
+  );
+}
+
+function PumpMilkData({ onDone }: { onDone: () => void }) {
+  return (
+    <div className="pump-data">
+      <div className="pump-data-hero">
+        <span className="pump-flower">*</span>
+        <h2>You did it, mama.</h2>
+        <p>Another bottle, made with love.</p>
+      </div>
+      <div className="milk-card">
+        <p>Last Pump</p>
+        <div className="milk-card-main">
+          <strong>0</strong>
+          <span>m ago</span>
+        </div>
+        <div className="milk-stats">
+          <span>
+            <small>Last Time</small>
+            00:10
+          </span>
+          <span>
+            <small>Last Volume</small>
+            120ml
+          </span>
+        </div>
+      </div>
+      <button className="pump-finish-button" onClick={onDone}>
+        Done
+      </button>
+    </div>
   );
 }
 
