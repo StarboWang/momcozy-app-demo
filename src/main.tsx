@@ -56,7 +56,7 @@ function App() {
   const [activeTab, setActiveTab] = useState("Device");
   const [toast, setToast] = useState("");
   const [selectedDevice, setSelectedDevice] = useState<Device | null>(null);
-  const [bbmCardState, setBbmCardState] = useState<BbmCardState>("idle");
+  const [bbmCardState, setBbmCardState] = useState<BbmCardState>("playing");
   const [bbmMuted, setBbmMuted] = useState(true);
   const [bbmLivePlaying, setBbmLivePlaying] = useState(true);
   const [bbmPanel, setBbmPanel] = useState<DetailPanel>("none");
@@ -441,8 +441,7 @@ function PumpCard({ device }: { device: Device }) {
   const [state, setState] = useState<PumpCardState>("empty");
   const [elapsed, setElapsed] = useState(0);
   const running = state === "running";
-  const leftProgress = Math.min(elapsed / 5, 1);
-  const rightProgress = Math.min(elapsed / 10, 1);
+  const progress = Math.min(elapsed / 10, 1);
 
   useEffect(() => {
     if (!running) return undefined;
@@ -481,8 +480,7 @@ function PumpCard({ device }: { device: Device }) {
       onClick={handleCardClick}
       style={
         {
-          "--left-progress": `${leftProgress * 360}deg`,
-          "--right-progress": `${rightProgress * 360}deg`,
+          "--pump-card-progress": `${progress * 360}deg`,
         } as React.CSSProperties
       }
     >
@@ -525,11 +523,12 @@ function PumpCard({ device }: { device: Device }) {
 function PumpSessionView({ paused }: { paused: boolean }) {
   return (
     <>
+      <PumpCardBackgroundLine />
       <div className={`pump-session ${paused ? "is-paused" : ""}`} aria-label={paused ? "Breast pump paused" : "Breast pump running"}>
-        <PumpSideTimer side="left" label="13:00" />
-        <PumpSideTimer side="right" label="10:00" />
+        <span className="pump-session-dots" />
+        <span className="pump-session-progress" />
+        <strong>13:00</strong>
       </div>
-      {paused ? <span className="pump-paused-label">Paused</span> : null}
       <PumpBatteryFooter />
     </>
   );
@@ -547,14 +546,22 @@ function PumpSideTimer({ side, label }: { side: "left" | "right"; label: string 
 function PumpBatteryFooter() {
   return (
     <div className="pump-battery-footer">
-      <span>
-        L <BatteryTiny />
-      </span>
+      <span aria-hidden="true" />
       <span>M9 Pro</span>
       <span>
         R <BatteryTiny />
       </span>
     </div>
+  );
+}
+
+function PumpCardBackgroundLine() {
+  return (
+    <Svg className="pump-card-background-line" viewBox="0 0 300 210">
+      <path d="M93 203c-.4-44.2 14.6-78.5 45-103 14.2-11.4 24.6-18.5 31.2-31.5" />
+      <path d="M173 63.4c-7.7-4.5-10-16.8-6-27.5 4.3-11.7 16.9-17 31.8-12.7 19.5 5.6 26.8 22.3 21 39.7-5.3 16.1-20.4 23.2-34.1 17.5" />
+      <path d="M195 84c16.4 9.4 36.5 11.2 55 19.3 15.4 6.7 29.3 13.6 41.6 20.7" />
+    </Svg>
   );
 }
 
@@ -668,13 +675,13 @@ function MonitorCard({
     <article className={`monitor-card device-card state-${previewState}`} onClick={handleCardClick}>
       <button
         className="monitor-head"
-        aria-label="Open baby monitor"
+        aria-label="Open baby monitor details"
         onClick={(event) => {
           event.stopPropagation();
-          onEnter();
+          handleCardClick();
         }}
       >
-        <img className="monitor-product" src={device.product} alt="" />
+        <span className="monitor-product" aria-hidden="true" />
         <div>
           <h2>{device.title}</h2>
           <div className="battery-row purple">
@@ -703,7 +710,6 @@ function MonitorCard({
         }}
       >
         <img className={isSoftFrame ? "is-soft-frame" : ""} src={streamVisible ? device.image : device.image} alt="Baby monitor feed" />
-        {previewState !== "idle" && previewState !== "error" ? <span className="monitor-watermark">2025-01-08 11:50:55</span> : null}
         {previewState === "idle" ? (
           <span className="bbm-center-play">
             <PlayIcon />
